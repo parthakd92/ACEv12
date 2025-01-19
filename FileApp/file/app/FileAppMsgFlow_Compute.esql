@@ -1,0 +1,45 @@
+BROKER SCHEMA file.app
+
+
+CREATE COMPUTE MODULE FileAppMsgFlow_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE inref REFERENCE TO InputRoot.XMLNSC.Bill.Apartment;
+		--DECLARE inref REFERENCE TO InputRoot.XMLNSC.bookstore;
+		
+/*		SET OutputLocalEnvironment.Destination.File.Name = 'PowerBillMessage1.txt';
+		SET OutputLocalEnvironment.Destination.File.Directory = 'C:\Users\parth\Downloads\OuputNode';
+		SET OutputRoot.XMLNSC.PowerBill.Flat101 = InputRoot.XMLNSC.Apartment.Units; */
+		
+		WHILE LASTMOVE(inref) DO
+		
+		IF inref.Flat = 101 THEN
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.Bill NAME 'Apartment';
+			DECLARE outref REFERENCE TO OutputRoot.XMLNSC.Bill.Apartment;
+			MOVE outref TO OutputRoot.XMLNSC.Bill.[<]; 
+			
+		
+			SET OutputLocalEnvironment.Destination.File[1].Name = 'PowerBillMessage1.txt';
+			SET OutputLocalEnvironment.Destination.File[1].Directory = 'C:\Users\parth\Downloads\OuputNode';
+			--SET OutputRoot.XMLNSC.bookstore.info[] = SELECT R FROM inref.book[] AS R WHERE R.author = 'Giada De Laurentiis';
+			SET outref.Units_101 = InputRoot.XMLNSC.Bill.Apartment.Units;
+			
+		ELSE
+				CREATE LASTCHILD OF OutputRoot.XMLNSC.Bill NAME 'Apartment';
+				DECLARE outref REFERENCE TO OutputRoot.XMLNSC.Bill.Apartment;
+				MOVE outref TO OutputRoot.XMLNSC.Bill.[<]; 
+				
+				SET OutputLocalEnvironment.Destination.File[2].Name = 'PowerBillMessage2.txt';			
+				SET OutputLocalEnvironment.Destination.File[2].Directory = 'C:\Users\parth\Downloads\OuputNode\OutputNode1';
+				--SET OutputRoot.XMLNSC.bookstore.info[] = SELECT R FROM inref.book[] AS R WHERE R.author = 'James McGovern';
+				SET outref.Units_102 = InputRoot.XMLNSC.Bill.Apartment.Units;
+			END IF;
+		
+			
+		MOVE inref NEXTSIBLING;
+		END WHILE;
+		RETURN TRUE;
+	END;
+END MODULE;
